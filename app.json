@@ -1,0 +1,44 @@
+{
+  "name": "Aviapayroll",
+  "description": "Human-friendly interface for displaying payrolls from SAASU invoices.",
+  "keywords": [
+    "saasu",
+    "payroll"
+  ],
+  "repository": "https://github.com/andrey-yantsen/aviapayroll",
+  "success_url": "/welcome",
+  "env": {
+    "SAASU_FILE_ID": {
+      "description": "SAASU file id (open any `purchase` in SAASU and copy `fchk` from URL)",
+      "required":
+    },
+    "SAASU_LOGIN": {
+      "description": "Your SASSU login",
+      "required": false
+    },
+    "SAASU_PASSWORD": {
+      "description": "Your SASSU password",
+      "required": false
+    },
+    "SAASU_REFRESH_TOKEN": {
+      "description": "Your SASSU API refresh token",
+      "required": false
+    },
+    "DOMAIN": {
+      "description": "Domain name (e.g. `ya.ru`) to limit Google users from"
+    },
+    "GOOGLE_ID": {
+      "description": "Google API id"
+    },
+    "GOOGLE_SECRET": {
+      "description": "Google API secret"
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "free"
+    }
+  },
+  "image": "heroku/python"
+}
