@@ -1,0 +1,11 @@
+[[source]]
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+
+[packages]
+aiohttp = "2.3.3"
+aiohttp_oauth = "0.7.0"
+ujson = "1.35"
+
+[requires]
+python_version = "3.6"
