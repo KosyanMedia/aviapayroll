@@ -9,8 +9,7 @@
   "success_url": "/welcome",
   "env": {
     "SAASU_FILE_ID": {
-      "description": "SAASU file id (open any `purchase` in SAASU and copy `fchk` from URL)",
-      "required":
+      "description": "SAASU file id (open any `purchase` in SAASU and copy `fchk` from URL)"
     },
     "SAASU_LOGIN": {
       "description": "Your SASSU login",
