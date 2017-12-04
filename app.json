@@ -41,7 +41,7 @@
     },
     "WEB_CONCURRENCY": {
       "description": "Workers count, keep it as 1",
-      "value": 1
+      "value": "1"
     }
   },
   "image": "heroku/python"
