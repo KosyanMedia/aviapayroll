@@ -22,10 +22,11 @@ def login_required(fn):
 			raise web.HTTPForbidden(body='Unexpected email')
 
 		if 'saasu_user' not in session or session['saasu_user']['EmailAddress'] != session['user']['email']:
+			session['saasu_user'] = {}
 			async for user in saasu.get_contacts(session['user']['email']):
 				session['saasu_user'] = user
 
-		if 'saasu_user' not in session:
+		if not len(session.get('saasu_user', {})):
 			raise web.HTTPForbidden(body='Unexpected billing user')
 
 		return await fn(request, user=session['user'], saasu_user=session['saasu_user'], **kwargs)
