@@ -42,7 +42,11 @@ async def main():
 		await refresh_access_token()
 	logging.info('working')
 
-	cookie_key = os.urandom(16).hex()
+	if os.environ.get('COOKIE_KEY'):
+		cookie_key = os.environ.get('COOKIE_KEY')
+	else:
+		cookie_key = os.urandom(16).hex()
+
 	app = web.Application(loop=loop,
 		middlewares=(
 	    	session_middleware(

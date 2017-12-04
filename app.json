@@ -6,8 +6,12 @@
     "payroll"
   ],
   "repository": "https://github.com/andrey-yantsen/aviapayroll",
-  "success_url": "/welcome",
+  "success_url": "/",
   "env": {
+    "COOKIE_KEY": {
+      "description": "Secret key for cookies encryption",
+      "generator": "secret"
+    },
     "SAASU_FILE_ID": {
       "description": "SAASU file id (open any `purchase` in SAASU and copy `fchk` from URL)"
     },
