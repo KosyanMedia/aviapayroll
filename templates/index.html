@@ -2,7 +2,7 @@
 {% block title %}Payroll magic{% endblock %}
 {% block content %}
 	<h1>Hello, {{ user['email'] }}!</h1>
-	<p class="lead">In following table you can see your salary details since {{ payroll_from }}</p>
+	<p class="lead">In following table you can see your salary details since {{ payroll_from }}.</p>
 	{% if invoices %}
 	<table width="75%">
 		<thead>
@@ -60,6 +60,8 @@
 			{% endfor %}
 		</tbody>
 	</table>
+	<br />
+	<p class="lead"><b>NB!</b> Only payments for last {{ payments_limit }} invoices are displayed in this table, to view other payments — open details by clicking on invoice summary.</p>
 	{% else %}
 	<p>Nothing to show for you, man, sorry :(</p>
 	{% endif %}
