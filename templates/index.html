@@ -13,7 +13,7 @@
 				<th width="110" rowspan="2">Amount Paid</th>
 				{% if has_payments %}<th width="200" colspan="2">Payments</th>{% endif %}
 				<th width="120" rowspan="2">Amount Owed</th>
-				<th width="50" rowspan="2">&nbsp;</th>
+				<th width="25" rowspan="2">&nbsp;</th>
 			</tr>
 			{% if has_payments %}<tr>
 				<th width="100">Date</th>
@@ -29,7 +29,7 @@
 				{% set itclass %}{{ loop.cycle('odd', 'even') }}{% endset %}
 				<tr class="{{ itclass }}">
 					<td{{ rowspan }}>{{ loop.index }}</td>
-					<td{{ rowspan }}>{{ invoice['Summary'] }}</td>
+					<td{{ rowspan }}><a href="/invoice/{{ invoice['TransactionId'] }}/view" title="Show details">{{ invoice['Summary'] }}</a></td>
 					<td{{ rowspan }}>{{ invoice['TotalAmount'] }}</td>
 					<td{{ rowspan }}>{{ invoice['AmountPaid'] }}</td>
 					{% if has_payments %}<td>
@@ -47,7 +47,7 @@
 						{% endif %}
 					</td>{%endif %}
 					<td{{ rowspan }}>{% if invoice['AmountOwed'] > 0 %}<b>{% endif %}{{ invoice['AmountOwed'] }}{% if invoice['AmountOwed'] > 0 %}</b>{% endif %}</td>
-					<td{{ rowspan }}><a href="/invoice/{{ invoice['TransactionId'] }}/email" title="Email it to me"><i class="fa fa-mail-forward"></i></a>&nbsp;<a href="/invoice/{{ invoice['TransactionId'] }}/view" title="Show details"><i class="fa fa-info-circle"></i></a></td>
+					<td{{ rowspan }}><a href="/invoice/{{ invoice['TransactionId'] }}/email" title="Email it to me"><i class="fa fa-mail-forward"></i></a></td>
 				</tr>
 				{% if has_payments and invoice['payments']|length > 1 %}
 					{% for p in invoice['payments'][1:] %}
