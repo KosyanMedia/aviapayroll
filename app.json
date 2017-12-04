@@ -34,6 +34,10 @@
     },
     "GOOGLE_REDIRECT_URI": {
       "description": "Redirect URL for Google oAuth (your aviapayroll domain + /auth/oauth_callback)"
+    },
+    "WEB_CONCURRENCY": {
+      "description": "Workers count, keep it as 1",
+      "value": 1
     }
   },
   "image": "heroku/python"
