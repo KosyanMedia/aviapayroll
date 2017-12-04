@@ -16,9 +16,10 @@ import hashlib
 
 
 async def refresh_access_token():
-	exp = await saasu.refresh_access_token(os.environ.get('SAASU_REFRESH_TOKEN'), os.environ.get('SAASU_FILE_ID'))
-	logging.info('Access token updated, expire in %s', exp)
-	loop.call_later(int(exp*0.9), refresh_access_token)
+	while True:
+		exp = await saasu.refresh_access_token(os.environ.get('SAASU_REFRESH_TOKEN'), os.environ.get('SAASU_FILE_ID'))
+		logging.info('Access token updated, expire in %s', exp)
+		await asyncio.sleep(int(exp*0.9))
 
 
 async def main():
@@ -40,7 +41,7 @@ async def main():
 		logging.error(r)
 		exit(0)
 	else:
-		await refresh_access_token()
+		loop.create_task(refresh_access_token())
 	logging.info('working')
 
 	if os.environ.get('COOKIE_KEY'):
