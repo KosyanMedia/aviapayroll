@@ -5,4 +5,4 @@ WORKDIR /usr/src/app/
 COPY requirements.txt /usr/src/app/
 RUN pip3 install -r requirements.txt --user --src=$HOME/.local/lib/python3.6/site-packages
 COPY . /usr/src/app/
-CMD python3 main.py --bind 0.0.0.0:$PORT
+CMD $HOME/.local/bin/gunicorn -k aiohttp.worker.GunicornWebWorker --bind 0.0.0.0:$PORT main:app

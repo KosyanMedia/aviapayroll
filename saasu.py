@@ -1,7 +1,9 @@
 import aiohttp
 import ujson
+import datetime
 
 ACCESS_TOKEN = None
+FILE_ID = None
 
 async def get_refresh_token(login, password, file_id):
 	request = {
@@ -16,15 +18,17 @@ async def get_refresh_token(login, password, file_id):
 	else:
 		raise Exception('Unexpected error, check credentials', r)
 
-async def refresh_access_token(refresh_token):
+async def refresh_access_token(refresh_token, file_id):
 	request = {
 		'grant_type': 'refresh_token',
 		'refresh_token': refresh_token,
+		'scope': 'FileId:%d' % int(file_id),
 	}
 	r = await post('authorisation/refresh', request)
 	if 'access_token' in r:
-		global ACCESS_TOKEN
+		global ACCESS_TOKEN, FILE_ID
 		ACCESS_TOKEN = r['access_token']
+		FILE_ID = file_id
 		return r['expires_in']
 	else:
 		raise Exception('Unexpected error, check credentials', r)
@@ -76,35 +80,43 @@ async def get_paged(uri, field, params=None):
 		params['Page'] += 1
 
 
-async def get_contacts(file_id, email=None):
-	params = {'FileId': file_id}
+async def get_contacts(email=None):
+	params = {'FileId': FILE_ID}
 	if email:
 		params['Email'] = email
 	async for contact in get_paged('Contacts', 'Contacts', params):
 		yield contact
 
 
-async def get_invoices(file_id, contact_id):
-	params = {'FileId': file_id, 'BillingContactId': contact_id}
+async def get_invoices(contact_id, date_from=None, date_to=None):
+	params = {'FileId': FILE_ID, 'BillingContactId': contact_id}
+	if date_from is not None:
+		params['InvoiceFromDate'] = date_from
+		if date_to is None:
+			date_to = datetime.datetime.today().strftime('%Y-%m-%d')
+	if date_to is not None:
+		params['InvoiceToDate'] = date_to
 	async for invoice in get_paged('Invoices', 'Invoices', params):
 		yield invoice
 
 
-async def get_invoice(file_id, transaction_id):
-	r = await get('Invoice/%s' % transaction_id, {'FileId': file_id})
-	if r.get('TransactionId') != transaction_id:
+async def get_invoice(transaction_id):
+	r = await get('Invoice/%s' % transaction_id, {'FileId': FILE_ID})
+	if r.get('TransactionId') != int(transaction_id):
 		raise Exception('Something wrong', r)
 	return r
 
 
-async def email_invoice(file_id, transaction_id):
-	r = await post('Invoice/%s/email-contact' % transaction_id, params={'FileId': file_id})
+async def email_invoice(transaction_id):
+	r = await post('Invoice/%s/email-contact' % transaction_id, params={'FileId': FILE_ID})
 	if r.get('InvoiceId') != transaction_id:
 		raise Exception('Something wrong', r)
 	return r
 
 
-async def get_payments(file_id, transaction_id):
-	params = {'FileId': file_id, 'ForInvoiceId': transaction_id}
+async def get_payments(transaction_id):
+	params = {'FileId': FILE_ID, 'ForInvoiceId': transaction_id}
+	params['PaymentFromDate'] = '2005-01-01'
+	params['PaymentToDate'] = datetime.datetime.today().strftime('%Y-%m-%d')
 	async for payments in get_paged('Payments', 'PaymentTransactions', params):
 		yield payments

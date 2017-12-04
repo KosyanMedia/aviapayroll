@@ -31,6 +31,9 @@
     },
     "GOOGLE_SECRET": {
       "description": "Google API secret"
+    },
+    "GOOGLE_REDIRECT_URI": {
+      "description": "Redirect URL for Google oAuth (your aviapayroll domain + /auth/oauth_callback)"
     }
   },
   "image": "heroku/python"

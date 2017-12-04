@@ -1,0 +1,66 @@
+{% extends "layout.html" %}
+{% block title %}Payroll magic{% endblock %}
+{% block content %}
+	<h1>Hello, {{ user['email'] }}!</h1>
+	<p class="lead">In following table you can see your salary details since {{ payroll_from }}</p>
+	{% if invoices %}
+	<table width="75%">
+		<thead>
+			<tr>
+				<th width="10" rowspan="2">#</th>
+				<th rowspan="2">Summary</th>
+				<th width="100" rowspan="2">Amount</th>
+				<th width="110" rowspan="2">Amount Paid</th>
+				{% if has_payments %}<th width="200" colspan="2">Payments</th>{% endif %}
+				<th width="120" rowspan="2">Amount Owed</th>
+				<th width="50" rowspan="2">&nbsp;</th>
+			</tr>
+			{% if has_payments %}<tr>
+				<th width="100">Date</th>
+				<th width="100">Amount</th>
+			</tr>{% endif %}
+		</thead>
+		<tbody>
+			{% for invoice in invoices %}
+				{% set rowspan = '' %}
+				{% if has_payments and invoice['payments'] %}
+				{% set rowspan %} rowspan="{{ invoice['payments']|length }}"{% endset %}
+				{% endif %}
+				{% set itclass %}{{ loop.cycle('odd', 'even') }}{% endset %}
+				<tr class="{{ itclass }}">
+					<td{{ rowspan }}>{{ loop.index }}</td>
+					<td{{ rowspan }}>{{ invoice['Summary'] }}</td>
+					<td{{ rowspan }}>{{ invoice['TotalAmount'] }}</td>
+					<td{{ rowspan }}>{{ invoice['AmountPaid'] }}</td>
+					{% if has_payments %}<td>
+						{% if invoice['payments'] %}
+							{{ invoice['payments'][0]['CreatedDateUtc'][0:10] }}
+						{% else %}
+						&nbsp;
+						{% endif %}
+					</td>
+					<td>
+						{% if invoice['payments'] %}
+							{{ invoice['payments'][0]['TotalAmount'] }}
+						{% else %}
+						&nbsp;
+						{% endif %}
+					</td>{%endif %}
+					<td{{ rowspan }}>{% if invoice['AmountOwed'] > 0 %}<b>{% endif %}{{ invoice['AmountOwed'] }}{% if invoice['AmountOwed'] > 0 %}</b>{% endif %}</td>
+					<td{{ rowspan }}><a href="/invoice/{{ invoice['TransactionId'] }}/email" title="Email it to me"><i class="fa fa-mail-forward"></i></a>&nbsp;<a href="/invoice/{{ invoice['TransactionId'] }}/view" title="Show details"><i class="fa fa-info-circle"></i></a></td>
+				</tr>
+				{% if has_payments and invoice['payments']|length > 1 %}
+					{% for p in invoice['payments'][1:] %}
+						<tr class="{{ itclass }}">
+							<td>{{ p['CreatedDateUtc'][0:10] }}</td>
+							<td>{{ p['TotalAmount'] }}</td>
+						</tr>
+					{% endfor %}
+				{% endif %}
+			{% endfor %}
+		</tbody>
+	</table>
+	{% else %}
+	<p>Nothing to show for you, man, sorry :(</p>
+	{% endif %}
+{% endblock %}

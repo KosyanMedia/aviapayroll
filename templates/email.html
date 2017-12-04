@@ -1,0 +1,5 @@
+{% extends "layout.html" %}
+{% block title %}Payroll magic{% endblock %}
+{% block content %}
+	<p class="lead">I've tried to send the invoice {{ invoice['Summary'] }}<br />to email {{ saasu_user['EmailAddress'] }} and the server<br />said me: '{{ email_result['StatusMessage'] }}'<br /><br />Don't hesitate to check SPAM-folder.</p>
+{% endblock %}

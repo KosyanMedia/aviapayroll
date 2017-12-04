@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+{% block title %}Payroll magic{% endblock %}
+{% block content %}
+	<p class="lead">Here is some details for {{ invoice['Summary'] }}</p>
+	<table width="75%">
+		<thead>
+			<tr>
+				<th width="10">#</th>
+				<th>Description</th>
+				<th width="100">Amount</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for line in sorted_lines %}
+				<tr class="{{ loop.cycle('odd', 'even') }}">
+					<td>{{ loop.index }}</td>
+					<td>{{ line['Description'] }}</td>
+					<td>{{ line['TotalAmount'] }}</td>
+				</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+	{% if payments %}
+	<br /><br /><p class="lead">And here payments information</p>
+	<table>
+		<thead>
+			<tr>
+				<th width="10">#</th>
+				<th width="150">Date</th>
+				<th width="100">Amount</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for payment in payments %}
+				<tr class="{{ loop.cycle('odd', 'even') }}">
+					<td>{{ loop.index }}</td>
+					<td>{{ payment['CreatedDateUtc'][0:10] }}</td>
+					<td>{{ payment['TotalAmount'] }}</td>
+				</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+	{% endif %}
+{% endblock %}

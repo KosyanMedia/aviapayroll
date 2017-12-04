@@ -1,1 +1,1 @@
-web: python3 -u main.py --bind 0.0.0.0:80
+web: gunicorn -k aiohttp.worker.GunicornWebWorker --bind 0.0.0.0:80 main
