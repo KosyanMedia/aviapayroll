@@ -12,6 +12,7 @@ import auth_helpers
 import aiohttp_jinja2
 import jinja2
 import routes
+import hashlib
 
 
 async def refresh_access_token():
@@ -43,7 +44,7 @@ async def main():
 	logging.info('working')
 
 	if os.environ.get('COOKIE_KEY'):
-		cookie_key = os.environ.get('COOKIE_KEY')
+		cookie_key = hashlib.md5(os.environ.get('COOKIE_KEY').encode('utf-8')).hexdigest()
 	else:
 		cookie_key = os.urandom(16).hex()
 
