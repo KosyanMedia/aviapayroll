@@ -76,7 +76,7 @@ async def email_invoice(request, user, saasu_user):
 		raise web.HTTPNotFound(body='Requested invoice not found')
 
 	if invoice['BillingContactId'] != saasu_user['Id']:
-		raise web.HTTPForbidden(body='Hey ;)')
+		raise web.HTTPNotFound(body='Requested invoice not found')
 
 	r = await saasu.email_invoice(invoice['TransactionId'])
 	return {
