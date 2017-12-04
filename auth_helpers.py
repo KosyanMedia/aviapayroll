@@ -4,6 +4,7 @@ import aiohttp
 from aiohttp import web
 from urllib.parse import urlencode
 import saasu
+import logging
 
 
 def login_required(fn):
@@ -46,6 +47,10 @@ async def google_oauthcallback(request):
 	async with aiohttp.ClientSession() as session:
 		async with session.post('https://www.googleapis.com/oauth2/v4/token', data=opts) as resp:
 			token_info = await resp.json()
+
+		if 'access_token' not in token_info:
+			logging.error('No access token: %s', token_info)
+
 		async with session.get('https://www.googleapis.com/oauth2/v2/userinfo', headers={'Authorization': 'Bearer ' + token_info['access_token']}) as resp:
 			guser = await resp.json()
 
