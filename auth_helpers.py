@@ -50,6 +50,7 @@ async def google_oauthcallback(request):
 
 		if 'access_token' not in token_info:
 			logging.error('No access token: %s', token_info)
+			raise web.HTTPUnauthorized(body='Authorization failed')
 
 		async with session.get('https://www.googleapis.com/oauth2/v2/userinfo', headers={'Authorization': 'Bearer ' + token_info['access_token']}) as resp:
 			guser = await resp.json()
