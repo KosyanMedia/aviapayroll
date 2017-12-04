@@ -54,7 +54,7 @@ async def view_invoice(request, user, saasu_user):
 		raise web.HTTPNotFound(body='Requested invoice not found')
 
 	if invoice['BillingContactId'] != saasu_user['Id']:
-		raise web.HTTPForbidden(body='Hey ;)')
+		raise web.HTTPNotFound(body='Requested invoice not found')
 
 	payments = []
 	async for payment in saasu.get_payments(invoice['TransactionId']):
