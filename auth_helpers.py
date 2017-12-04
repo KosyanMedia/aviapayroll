@@ -55,7 +55,7 @@ async def google_oauthcallback(request):
 			guser = await resp.json()
 
 	session = await get_session(request)
-	location = session.pop('desired_location')
+	location = session.pop('desired_location', '/')
 	session['user'] = guser
 	session['token'] = token_info['access_token']
 	return web.HTTPFound(location)
