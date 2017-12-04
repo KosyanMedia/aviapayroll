@@ -49,8 +49,6 @@ async def google_oauthcallback(request):
 		async with session.get('https://www.googleapis.com/oauth2/v2/userinfo', headers={'Authorization': 'Bearer ' + token_info['access_token']}) as resp:
 			guser = await resp.json()
 
-	print(guser)
-
 	session = await get_session(request)
 	location = session.pop('desired_location')
 	session['user'] = guser
