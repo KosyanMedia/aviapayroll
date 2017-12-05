@@ -18,10 +18,10 @@ def login_required(fn):
 		if 'user' not in session:
 			session['desired_location'] = request.path_qs
 			return web.HTTPFound('/auth/login')
-		elif not session['user'].get('email') or session['user']['hd'] not in os.environ['DOMAIN'].split(','):
+		elif not session['user'].get('email') or session['user'].get('hd') not in os.environ['DOMAIN'].split(','):
 			raise web.HTTPForbidden(body='Unexpected email')
 
-		if 'saasu_user' not in session or session['saasu_user']['EmailAddress'] != session['user']['email']:
+		if not len(session.get('saasu_user', {})) or session['saasu_user'].get('EmailAddress') != session['user']['email']:
 			session['saasu_user'] = {}
 			async for user in saasu.get_contacts(session['user']['email']):
 				session['saasu_user'] = user
