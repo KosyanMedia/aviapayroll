@@ -52,22 +52,27 @@
 				var lines = data.LineItems;
 				var taxes = 0;
 				var amount = 0;
-				for (var lId in lines) {
-					var l = lines[lId];
-					if (l.Description.toLocaleLowerCase().indexOf('tax') != -1) {
-						taxes += l.TotalAmount;
-					}
-					if (l.TotalAmount > 0) {
-						amount += l.TotalAmount;
+				var deductions = 0;
+				if (data.payments.length > 0 && data.payments[0]['CreatedDateUtc'].substring(0, 4) == "{{ year }}") {
+					for (var lId in lines) {
+						var l = lines[lId];
+						if (l.Description.toLocaleLowerCase().indexOf('tax') != -1) {
+							taxes += l.TotalAmount;
+						}
+						if (l.TotalAmount > 0) {
+							amount += l.TotalAmount;
+						} else {
+							deductions -= l.TotalAmount;
+						}
 					}
 				}
 				if (taxes != 0) {
-					$(hId + ' td.amount').text(amount);
+					$(hId + ' td.amount').text(amount.toFixed(2));
 					var c = $totalAmount.text() ? parseFloat($totalAmount.text()) : 0;
-					$totalAmount.text(Math.round((c + amount) * 100) / 100);
-					$(hId + ' td.taxes').text(taxes);
+					$totalAmount.text((c + amount).toFixed(2));
+					$(hId + ' td.taxes').text(taxes.toFixed(2));
 					c = $totalTaxes.text() ? parseFloat($totalTaxes.text()) : 0;
-					$totalTaxes.text(Math.round((c + taxes) * 100) / 100);
+					$totalTaxes.text((c + taxes).toFixed(2));
 				} else {
 					$(hId + ' i.fa-refresh').removeClass('fa-spin').removeClass('fa-refresh').addClass('fa-close');
 				}

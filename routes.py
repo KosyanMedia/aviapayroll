@@ -95,10 +95,10 @@ async def email_invoice(request, user, saasu_user):
 @aiohttp_jinja2.template('taxes.html')
 @auth_helpers.login_required
 async def taxes(request, user, saasu_user):
-    year = request.match_info['year']
+    year = int(request.match_info['year'])
 
     invoices = []
-    date_from = '%s-01-01' % year
+    date_from = '%s-12-01' % (year - 1)
     date_to = '%s-12-31' % year
     async for invoice in saasu.get_invoices(saasu_user['Id'], date_from=date_from, date_to=date_to):
         invoices.append(invoice)
