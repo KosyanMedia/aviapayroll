@@ -1,0 +1,80 @@
+{% extends "layout.html" %}
+{% block title %}Payroll magic{% endblock %}
+{% block content %}
+	<p class="lead">Let's try to show you taxes details for year {{ year }}.</p>
+	{% if invoices|length > 0 %}
+	<table>
+		<thead>
+			<th width="10">#</th>
+			<th>Summary</th>
+			<th width="200">Amount to declare</th>
+			<th width="100">Taxes</th>
+		</thead>
+		<tfoot>
+			<td>&nbsp;</td>
+			<td>Total</td>
+			<td class="amount"><i class="fa fa-cog fa-spin fa-fw"></i></td>
+			<td class="taxes"><i class="fa fa-cog fa-spin fa-fw"></i></td>
+		</tfoot>
+		<tbody>
+			{% for invoice in invoices %}
+				<tr data-id="{{ invoice['TransactionId'] }}" class="transaction" id="transaction-{{ invoice['TransactionId'] }}">
+					<td>{{ loop.index }}</td>
+					<td><a href="/invoice/{{ invoice['TransactionId'] }}/view" title="Show details">{{ invoice['Summary'] }}</a></td>
+					<td class="amount"><i class="fa fa-cog fa-spin fa-fw"></i></td>
+					<td class="taxes"><i class="fa fa-cog fa-spin fa-fw"></i></td>
+				</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+	{% else %}
+		<p class="lead">No invoices found :(</p>
+	{% endif %}
+{% endblock %}
+{% block footer %}
+{% if invoices|length > 0 %}
+	<script>
+		var transactions = [];
+		var $totalAmount = $('tfoot td.amount');
+		var $totalTaxes = $('tfoot td.taxes');
+		$('tr.transaction').each(function() {
+			transactions.push($(this).data('id'));
+		});
+		function update() {
+			if (transactions.length == 0) {
+				return;
+			}
+			var tId = transactions[0];
+			var hId = '#transaction-' + tId;
+			transactions = transactions.slice(1);
+			$(hId + ' i.fa-cog').removeClass('fa-cog').addClass('fa-refresh');
+			$.get('/invoice/' + tId + '/json', function(data) {
+				var lines = data.LineItems;
+				var taxes = 0;
+				var amount = 0;
+				for (var lId in lines) {
+					var l = lines[lId];
+					if (l.Description.toLocaleLowerCase().indexOf('tax') != -1) {
+						taxes += l.TotalAmount;
+					}
+					if (l.TotalAmount > 0) {
+						amount += l.TotalAmount;
+					}
+				}
+				if (taxes != 0) {
+					$(hId + ' td.amount').text(amount);
+					var c = $totalAmount.text() ? parseFloat($totalAmount.text()) : 0;
+					$totalAmount.text(Math.round((c + amount) * 100) / 100);
+					$(hId + ' td.taxes').text(taxes);
+					c = $totalTaxes.text() ? parseFloat($totalTaxes.text()) : 0;
+					$totalTaxes.text(Math.round((c + taxes) * 100) / 100);
+				} else {
+					$(hId + ' i.fa-refresh').removeClass('fa-spin').removeClass('fa-refresh').addClass('fa-close');
+				}
+				setTimeout(update, 100);
+			});
+		}
+		window.onload = update;
+	</script>
+{% endif %}
+{% endblock %}

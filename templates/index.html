@@ -60,8 +60,8 @@
 			{% endfor %}
 		</tbody>
 	</table>
-	<br />
-	<p class="lead"><b>NB!</b> Only payments for last {{ payments_limit }} invoices are displayed in this table, to view other payments — open details by clicking on invoice summary.</p>
+	<p class="lead" style="padding-top: 25px"><b>NB!</b> Only payments for last {{ payments_limit }} invoices are displayed in this table, to view other payments — open details by clicking on invoice summary.</p>
+	<p class="lead" style="padding-top: 25px">Show taxes for {% if current_month < 5 %}<a href="/taxes/{{ current_year - 1}}">{{ current_year - 1 }}</a> / {% endif %}<a href="/taxes/{{ current_year }}">{{ current_year }}</a></p>
 	{% else %}
 	<p>Nothing to show for you, man, sorry :(</p>
 	{% endif %}
