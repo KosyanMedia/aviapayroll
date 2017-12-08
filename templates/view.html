@@ -12,11 +12,13 @@
 		</thead>
 		<tbody>
 			{% for line in sorted_lines %}
+				{% if line['TotalAmount'] != 0 %}
 				<tr class="{{ loop.cycle('odd', 'even') }}">
 					<td>{{ loop.index }}</td>
 					<td>{{ line['Description'] }}</td>
 					<td>{{ '%0.2f' % line['TotalAmount'] }}</td>
 				</tr>
+				{% endif %}
 			{% endfor %}
 		</tbody>
 	</table>
