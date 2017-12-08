@@ -30,8 +30,8 @@
 				<tr class="{{ itclass }}">
 					<td{{ rowspan }}>{{ loop.index }}</td>
 					<td{{ rowspan }}><a href="/invoice/{{ invoice['TransactionId'] }}/view" title="Show details">{{ invoice['Summary'] }}</a></td>
-					<td{{ rowspan }}>{{ invoice['TotalAmount'] }}</td>
-					<td{{ rowspan }}>{{ invoice['AmountPaid'] }}</td>
+					<td{{ rowspan }}>{{ '%0.2f' % invoice['TotalAmount'] }}</td>
+					<td{{ rowspan }}>{{ '%0.2f' % invoice['AmountPaid'] }}</td>
 					{% if has_payments %}<td>
 						{% if invoice['payments'] %}
 							{{ invoice['payments'][0]['CreatedDateUtc'][0:10] }}
@@ -41,19 +41,19 @@
 					</td>
 					<td>
 						{% if invoice['payments'] %}
-							{{ invoice['payments'][0]['TotalAmount'] }}
+							{{ '%0.2f' % invoice['payments'][0]['TotalAmount'] }}
 						{% else %}
 						&nbsp;
 						{% endif %}
 					</td>{%endif %}
-					<td{{ rowspan }}>{% if invoice['AmountOwed'] > 0 %}<b>{% endif %}{{ invoice['AmountOwed'] }}{% if invoice['AmountOwed'] > 0 %}</b>{% endif %}</td>
+					<td{{ rowspan }}>{% if invoice['AmountOwed'] > 0 %}<b>{% endif %}{{ '%0.2f' % invoice['AmountOwed'] }}{% if invoice['AmountOwed'] > 0 %}</b>{% endif %}</td>
 					<td{{ rowspan }}><a href="/invoice/{{ invoice['TransactionId'] }}/email" title="Email it to me"><i class="fa fa-mail-forward"></i></a></td>
 				</tr>
 				{% if has_payments and invoice['payments']|length > 1 %}
 					{% for p in invoice['payments'][1:] %}
 						<tr class="{{ itclass }}">
 							<td>{{ p['CreatedDateUtc'][0:10] }}</td>
-							<td>{{ p['TotalAmount'] }}</td>
+							<td>{{ '%0.2f' % p['TotalAmount'] }}</td>
 						</tr>
 					{% endfor %}
 				{% endif %}

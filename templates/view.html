@@ -15,7 +15,7 @@
 				<tr class="{{ loop.cycle('odd', 'even') }}">
 					<td>{{ loop.index }}</td>
 					<td>{{ line['Description'] }}</td>
-					<td>{{ line['TotalAmount'] }}</td>
+					<td>{{ '%0.2f' % line['TotalAmount'] }}</td>
 				</tr>
 			{% endfor %}
 		</tbody>
@@ -35,7 +35,7 @@
 				<tr class="{{ loop.cycle('odd', 'even') }}">
 					<td>{{ loop.index }}</td>
 					<td>{{ payment['CreatedDateUtc'][0:10] }}</td>
-					<td>{{ payment['TotalAmount'] }}</td>
+					<td>{{ '%0.2f' % payment['TotalAmount'] }}</td>
 				</tr>
 			{% endfor %}
 		</tbody>
