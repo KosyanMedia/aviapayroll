@@ -25,8 +25,8 @@ def login_required(fn):
 			session['saasu_user'] = {}
 			async for user in saasu.get_contacts(session['user']['email']):
 				session['saasu_user'] = {
-					'EmailAddress': saasu_user['EmailAddress'],
-					'Id': saasu_user['Id'],
+					'EmailAddress': user['EmailAddress'],
+					'Id': user['Id'],
 				}
 
 		if not len(session.get('saasu_user', {})):
