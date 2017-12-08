@@ -13,7 +13,7 @@ async def index(request, user, saasu_user):
 	payroll_from = request.GET.get('from')
 	if not payroll_from:
 		payroll_from = datetime.date.today()
-		payroll_from -= relativedelta(months=6, days=payroll_from.day - 1)
+		payroll_from -= relativedelta(months=int(os.environ.get('DEFAULT_INVOICES_DEPTH', '6')), days=payroll_from.day - 1)
 		payroll_from = payroll_from.strftime('%Y-%m-%d')
 
 	invoices = []

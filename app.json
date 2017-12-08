@@ -39,6 +39,14 @@
     "GOOGLE_REDIRECT_URI": {
       "description": "Redirect URL for Google oAuth (your aviapayroll domain + /auth/oauth_callback)"
     },
+    "DEFAULT_INVOICES_DEPTH": {
+      "description": "Amount of month to search for invoices by default",
+      "value": "6"
+    },
+    "INVOICE_WITH_PAYMENTS": {
+      "description": "Count of invoices to be populated with payments",
+      "value": "4"
+    },
     "WEB_CONCURRENCY": {
       "description": "Workers count, keep it as 1",
       "value": "1"
