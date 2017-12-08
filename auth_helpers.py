@@ -24,7 +24,10 @@ def login_required(fn):
 		if not len(session.get('saasu_user', {})) or session['saasu_user'].get('EmailAddress') != session['user']['email']:
 			session['saasu_user'] = {}
 			async for user in saasu.get_contacts(session['user']['email']):
-				session['saasu_user'] = user
+				session['saasu_user'] = {
+					'EmailAddress': saasu_user['EmailAddress'],
+					'Id': saasu_user['Id'],
+				}
 
 		if not len(session.get('saasu_user', {})):
 			raise web.HTTPForbidden(body='Unexpected billing user')
@@ -58,7 +61,10 @@ async def google_oauthcallback(request):
 
 	session = await get_session(request)
 	location = session.pop('desired_location', '/')
-	session['user'] = guser
+	session['user'] = {
+		'email': guser['email'],
+		'hd': guser['hd'],
+	}
 	session['token'] = token_info['access_token']
 	return web.HTTPFound(location)
 
