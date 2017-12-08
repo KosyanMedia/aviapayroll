@@ -54,7 +54,7 @@ async def main():
 	    	session_middleware(
 	           EncryptedCookieStorage(cookie_key.encode(),
 	                                  cookie_name='oauth',
-	                                  max_age=1800)
+	                                  max_age=21600)
 			),
 		)
 	)
