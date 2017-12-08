@@ -3,12 +3,12 @@ url = "https://pypi.python.org/simple"
 verify_ssl = true
 
 [packages]
-aiohttp = "2.3.3"
-ujson = "1.35"
-gunicorn = "19.7.1"
-aiohttp-jinja2 = "0.14.0"
-aiohttp-session[secure] = "2.1.0"
-python-dateutil = "2.6.1"
+aiohttp = "*"
+ujson = "*"
+gunicorn = "*"
+aiohttp-jinja2 = "*"
+"aiohttp-session[secure]" = "*"
+python-dateutil = "*"
 
 [requires]
 python_version = "3.6"
