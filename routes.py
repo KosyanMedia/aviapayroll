@@ -6,6 +6,7 @@ from dateutil.relativedelta import relativedelta
 import saasu
 from aiohttp import web
 import ujson
+import cbr
 
 
 @aiohttp_jinja2.template('index.html')
@@ -121,6 +122,11 @@ async def invoice_details(request, user, saasu_user):
 
     payments = []
     async for payment in saasu.get_payments(invoice['TransactionId']):
+        date = datetime.datetime.strptime(payment['CreatedDateUtc'][0:10], '%Y-%m-%d')
+        try:
+            payment['cbRate'] = await cbr.get_currency_rate(date, 'USD')
+        except:
+            payment['cbRate'] = None
         payments.append(payment)
 
     invoice['payments'] = payments

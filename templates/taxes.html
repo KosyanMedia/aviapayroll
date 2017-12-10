@@ -5,16 +5,31 @@
 	{% if invoices|length > 0 %}
 	<table>
 		<thead>
-			<th width="10">#</th>
-			<th>Summary</th>
-			<th width="200">Amount to declare</th>
-			<th width="100">Taxes</th>
+			<tr>
+				<th rowspan="2" width="10">#</th>
+				<th rowspan="2">Summary</th>
+				<th rowspan="2" width="200">Amount to declare</th>
+				<th rowspan="2" width="100">Taxes</th>
+				<th rowspan="2" width="100">Date</th>
+				<th colspan="3" width="270">CBRF Currency conversion</th>
+			</tr>
+			<tr>
+				<th width="70">Rate</th>
+				<th width="100">Amount</th>
+				<th width="100">Taxes</th>
+			</tr>
 		</thead>
 		<tfoot>
-			<td>&nbsp;</td>
-			<td>Total</td>
-			<td class="amount"><i class="fa fa-cog fa-spin fa-fw"></i></td>
-			<td class="taxes"><i class="fa fa-cog fa-spin fa-fw"></i></td>
+			<tr>
+				<td>&nbsp;</td>
+				<td>Total</td>
+				<td class="amount"><i class="fa fa-cog fa-spin fa-fw"></i></td>
+				<td class="taxes"><i class="fa fa-cog fa-spin fa-fw"></i></td>
+				<td class="date">&nbsp;</td>
+				<td class="rate">&nbsp;</td>
+				<td class="amount-cb"><i class="fa fa-cog fa-spin fa-fw"></i></td>
+				<td class="taxes-cb"><i class="fa fa-cog fa-spin fa-fw"></i></td>
+			</tr>
 		</tfoot>
 		<tbody>
 			{% for invoice in invoices %}
@@ -23,6 +38,10 @@
 					<td><a href="/invoice/{{ invoice['TransactionId'] }}/view" title="Show details">{{ invoice['Summary'] }}</a></td>
 					<td class="amount"><i class="fa fa-cog fa-spin fa-fw"></i></td>
 					<td class="taxes"><i class="fa fa-cog fa-spin fa-fw"></i></td>
+					<td class="date"><i class="fa fa-cog fa-spin fa-fw"></i></td>
+					<td class="rate"><i class="fa fa-cog fa-spin fa-fw"></i></td>
+					<td class="amount-cb"><i class="fa fa-cog fa-spin fa-fw"></i></td>
+					<td class="taxes-cb"><i class="fa fa-cog fa-spin fa-fw"></i></td>
 				</tr>
 			{% endfor %}
 		</tbody>
@@ -37,6 +56,8 @@
 		var transactions = [];
 		var $totalAmount = $('tfoot td.amount');
 		var $totalTaxes = $('tfoot td.taxes');
+		var $totalAmountCb = $('tfoot td.amount-cb');
+		var $totalTaxesCb = $('tfoot td.taxes-cb');
 		$('tr.transaction').each(function() {
 			transactions.push($(this).data('id'));
 		});
@@ -67,12 +88,30 @@
 					}
 				}
 				if (taxes != 0) {
+					$(hId + ' td.date').text(data.payments[0]['CreatedDateUtc'].substring(0, 10));
+					$(hId + ' td.rate').text(data.payments[0]['cbRate'].toFixed());
 					$(hId + ' td.amount').text(amount.toFixed(2));
 					var c = $totalAmount.text() ? parseFloat($totalAmount.text()) : 0;
 					$totalAmount.text((c + amount).toFixed(2));
 					$(hId + ' td.taxes').text(taxes.toFixed(2));
 					c = $totalTaxes.text() ? parseFloat($totalTaxes.text()) : 0;
 					$totalTaxes.text((c + taxes).toFixed(2));
+					if (data.payments[0]['cbRate']) {
+						rate = data.payments[0]['cbRate'];
+						$(hId + ' td.rate').text(rate.toFixed(4));
+
+						$(hId + ' td.amount-cb').text((amount * rate).toFixed(2));
+						c = $totalAmountCb.text() ? parseFloat($totalAmountCb.text()) : 0;
+						$totalAmountCb.text((c + amount * rate).toFixed(2));
+
+						$(hId + ' td.taxes-cb').text((taxes * rate).toFixed(2));
+						c = $totalTaxesCb.text() ? parseFloat($totalTaxesCb.text()) : 0;
+						$totalTaxesCb.text((c + taxes * rate).toFixed(2));
+					} else {
+						$(hId + ' td.rate i.fa-refresh').removeClass('fa-spin').removeClass('fa-refresh').addClass('fa-close');
+						$(hId + ' td.amount-cb i.fa-refresh').removeClass('fa-spin').removeClass('fa-refresh').addClass('fa-close');
+						$(hId + ' td.taxes-cb i.fa-refresh').removeClass('fa-spin').removeClass('fa-refresh').addClass('fa-close');
+					}
 				} else {
 					$(hId + ' i.fa-refresh').removeClass('fa-spin').removeClass('fa-refresh').addClass('fa-close');
 				}
