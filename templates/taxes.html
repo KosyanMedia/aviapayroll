@@ -23,12 +23,12 @@
 			<tr>
 				<td>&nbsp;</td>
 				<td>Total</td>
-				<td class="amount"><i class="fa fa-cog fa-spin fa-fw"></i></td>
-				<td class="taxes"><i class="fa fa-cog fa-spin fa-fw"></i></td>
+				<td class="amount" data-value="0"><i class="fa fa-cog fa-spin fa-fw"></i></td>
+				<td class="taxes" data-value="0"><i class="fa fa-cog fa-spin fa-fw"></i></td>
 				<td class="date">&nbsp;</td>
-				<td class="rate"><i class="fa fa-cog fa-spin fa-fw"></i></td>
-				<td class="amount-cb"><i class="fa fa-cog fa-spin fa-fw"></i></td>
-				<td class="taxes-cb"><i class="fa fa-cog fa-spin fa-fw"></i></td>
+				<td class="rate" data-value="0"><i class="fa fa-cog fa-spin fa-fw"></i></td>
+				<td class="amount-cb" data-value="0"><i class="fa fa-cog fa-spin fa-fw"></i></td>
+				<td class="taxes-cb" data-value="0"><i class="fa fa-cog fa-spin fa-fw"></i></td>
 			</tr>
 		</tfoot>
 		<tbody>
@@ -59,6 +59,10 @@
 		var $totalAmountCb = $('tfoot td.amount-cb');
 		var $totalTaxesCb = $('tfoot td.taxes-cb');
 		var $avgCurrencyRate = $('tfoot td.rate');
+		var f = Intl.NumberFormat(undefined, {
+			maximumFractionDigits: 2,
+			minimumFractionDigits: 2
+		});
 		$('tr.transaction').each(function() {
 			transactions.push($(this).data('id'));
 		});
@@ -90,27 +94,31 @@
 				}
 				if (taxes != 0) {
 					$(hId + ' td.date').text(data.payments[0]['CreatedDateUtc'].substring(0, 10));
-					$(hId + ' td.rate').text(data.payments[0]['cbRate'].toFixed());
-					$(hId + ' td.amount').text(amount.toFixed(2));
-					var c = $totalAmount.text() ? parseFloat($totalAmount.text()) : 0;
-					$totalAmount.text((c + amount).toFixed(2));
-					$(hId + ' td.taxes').text(taxes.toFixed(2));
-					c = $totalTaxes.text() ? parseFloat($totalTaxes.text()) : 0;
+					$(hId + ' td.rate').text(f.format(data.payments[0]['cbRate']));
+					$(hId + ' td.amount').text(f.format(amount));
+					var c = parseFloat($totalAmount.data('value'));
+					$totalAmount.text(f.format(c + amount));
+					$totalAmount.data('value', taxes.toFixed(2));
+					$(hId + ' td.taxes').text(f.format(taxes));
+					c = parseFloat($totalTaxes.data('value'));
 					var totalTaxes = c + taxes;
-					$totalTaxes.text(totalTaxes.toFixed(2));
+					$totalTaxes.data('value', totalTaxes.toFixed(2));
+					$totalTaxes.text(f.format(totalTaxes));
 					if (data.payments[0]['cbRate']) {
 						rate = data.payments[0]['cbRate'];
-						$(hId + ' td.rate').text(rate.toFixed(4));
+						$(hId + ' td.rate').text(f.format(rate));
 
-						$(hId + ' td.amount-cb').text((amount * rate).toFixed(2));
-						c = $totalAmountCb.text() ? parseFloat($totalAmountCb.text()) : 0;
-						$totalAmountCb.text((c + amount * rate).toFixed(2));
+						$(hId + ' td.amount-cb').text(f.format(amount * rate));
+						c = parseFloat($totalAmountCb.data('value'));
+						$totalAmountCb.data('value', (c + amount * rate).toFixed(2));
+						$totalAmountCb.text(f.format(c + amount * rate));
 
-						$(hId + ' td.taxes-cb').text((taxes * rate).toFixed(2));
-						c = $totalTaxesCb.text() ? parseFloat($totalTaxesCb.text()) : 0;
+						$(hId + ' td.taxes-cb').text(f.format(taxes * rate));
+						c = parseFloat($totalTaxesCb.data('value'));
 						var totalTaxesCb = c + taxes * rate;
-						$totalTaxesCb.text(totalTaxesCb.toFixed(2));
-						$avgCurrencyRate.text((totalTaxesCb / totalTaxes).toFixed(4));
+						$totalTaxesCb.data('value', totalTaxesCb.toFixed(2));
+						$totalTaxesCb.text(f.format(totalTaxesCb));
+						$avgCurrencyRate.text(f.format(totalTaxesCb / totalTaxes));
 					} else {
 						$(hId + ' td.rate i.fa-refresh').removeClass('fa-spin').removeClass('fa-refresh').addClass('fa-close');
 						$(hId + ' td.amount-cb i.fa-refresh').removeClass('fa-spin').removeClass('fa-refresh').addClass('fa-close');
