@@ -94,7 +94,6 @@
 				}
 				if (taxes != 0) {
 					$(hId + ' td.date').text(data.payments[0]['CreatedDateUtc'].substring(0, 10));
-					$(hId + ' td.rate').text(f.format(data.payments[0]['cbRate']));
 					$(hId + ' td.amount').text(f.format(amount));
 					var c = parseFloat($totalAmount.data('value'));
 					$totalAmount.text(f.format(c + amount));
@@ -109,7 +108,7 @@
 					$totalTaxes.text(f.format(totalTaxes));
 					if (data.payments[0]['cbRate']) {
 						rate = data.payments[0]['cbRate'];
-						$(hId + ' td.rate').text(f.format(rate));
+						$(hId + ' td.rate').text(rate.toFixed(4));
 
 						$(hId + ' td.amount-cb').text(f.format(amount * rate));
 						c = parseFloat($totalAmountCb.data('value'));
