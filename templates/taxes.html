@@ -100,6 +100,9 @@
 					$totalAmount.text(f.format(c + amount));
 					$totalAmount.data('value', taxes.toFixed(2));
 					$(hId + ' td.taxes').text(f.format(taxes));
+					if (Math.round(amount * 0.13) != Math.round(taxes)) {
+						$(hId + ' td.taxes').addClass('suspicious').attr('title', 'Calculated taxes value differs from transferred, contact accounting team before filling TAX-form');
+					}
 					c = parseFloat($totalTaxes.data('value'));
 					var totalTaxes = c + taxes;
 					$totalTaxes.data('value', totalTaxes.toFixed(2));
