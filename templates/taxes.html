@@ -59,7 +59,7 @@
 		var $totalAmountCb = $('tfoot td.amount-cb');
 		var $totalTaxesCb = $('tfoot td.taxes-cb');
 		var $avgCurrencyRate = $('tfoot td.rate');
-		var f = Intl.NumberFormat(undefined, {
+		var f = Intl.NumberFormat(['ru-RU', 'en-US', 'en-AU', 'th-TH'], {
 			maximumFractionDigits: 2,
 			minimumFractionDigits: 2
 		});
