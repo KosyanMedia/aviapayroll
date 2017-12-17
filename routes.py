@@ -124,16 +124,23 @@ async def view_payment(request, user, saasu_user):
 
     invoice_ids = []
     invoices = {}
+    items = []
+    if len(payment.get('PaymentItems', [])) > 10:
+        raise web.HTTPTooManyRequests('Too many invoices in this payment, sorry')
     for item in payment.get('PaymentItems', []):
         if item['InvoiceTransactionId'] not in invoice_ids:
-            invoice_ids.append(item['InvoiceTransactionId'])
             try:
                 invoice = await saasu.get_invoice(item['InvoiceTransactionId'])
-                invoices[item['InvoiceTransactionId']] = invoice
             except:
                 raise web.HTTPNotFound(body='Requested payment not found')
-            if invoice['BillingContactId'] != saasu_user['Id']:
-                raise web.HTTPNotFound(body='Requested invoice not found')
+            if invoice['BillingContactId'] == saasu_user['Id']:
+                invoice_ids.append(item['InvoiceTransactionId'])
+                invoices[item['InvoiceTransactionId']] = invoice
+                items.append(item)
+            else:
+                payment['TotalAmount'] -= item['AmountPaid']
+
+    payment['PaymentItems'] = items
 
     return {
         'invoices': invoices,
