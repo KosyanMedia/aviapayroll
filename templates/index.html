@@ -34,7 +34,7 @@
 					<td{{ rowspan }}>{{ '%0.2f' % invoice['AmountPaid'] }}</td>
 					{% if has_payments %}<td>
 						{% if invoice['payments'] %}
-							{{ invoice['payments'][0]['CreatedDateUtc'][0:10] }}
+							<a href="/payment/{{invoice['payments'][0]['TransactionId']}}/view">{{ invoice['payments'][0]['CreatedDateUtc'][0:10] }}</a>
 						{% else %}
 						&nbsp;
 						{% endif %}
@@ -52,7 +52,7 @@
 				{% if has_payments and invoice['payments']|length > 1 %}
 					{% for p in invoice['payments'][1:] %}
 						<tr class="{{ itclass }}">
-							<td>{{ p['CreatedDateUtc'][0:10] }}</td>
+							<td><a href="/payment/{{p['TransactionId']}}/view">{{ p['CreatedDateUtc'][0:10] }}</a></a></td>
 							<td>{{ '%0.2f' % p['TotalAmount'] }}</td>
 						</tr>
 					{% endfor %}

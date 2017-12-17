@@ -126,3 +126,9 @@ async def get_payments(transaction_id=None, date_from='2005-01-01', date_to=date
     params['PaymentToDate'] = date_to
     async for payments in get_paged('Payments', 'PaymentTransactions', params):
         yield payments
+
+async def get_payment(transaction_id):
+    r = await get('Payment/%s' % transaction_id, {'FileId': FILE_ID})
+    if r.get('TransactionId') != int(transaction_id):
+        raise Exception('Something wrong', r)
+    return r

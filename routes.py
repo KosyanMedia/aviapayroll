@@ -134,9 +134,37 @@ async def invoice_details(request, user, saasu_user):
     return web.json_response(invoice, dumps=ujson.dumps)
 
 
+@aiohttp_jinja2.template('payment.html')
+@auth_helpers.login_required
+async def view_payment(request, user, saasu_user):
+    try:
+        payment = await saasu.get_payment(request.match_info['transaction_id'])
+    except:
+        raise web.HTTPNotFound(body='Requested payment not found')
+
+    invoice_ids = []
+    invoices = {}
+    for item in payment.get('PaymentItems', []):
+        if item['InvoiceTransactionId'] not in invoice_ids:
+            invoice_ids.append(item['InvoiceTransactionId'])
+            try:
+                invoice = await saasu.get_invoice(item['InvoiceTransactionId'])
+                invoices[item['InvoiceTransactionId']] = invoice
+            except:
+                raise web.HTTPNotFound(body='Requested payment not found')
+            if invoice['BillingContactId'] != saasu_user['Id']:
+                raise web.HTTPNotFound(body='Requested invoice not found')
+
+    return {
+        'invoices': invoices,
+        'payment': payment,
+    }
+
+
 def register(app):
     app.router.add_get('/', index)
     app.router.add_get(r'/invoice/{invoice_id:\d+}/email', email_invoice)
     app.router.add_get(r'/invoice/{invoice_id:\d+}/view', view_invoice)
     app.router.add_get(r'/invoice/{invoice_id:\d+}/json', invoice_details)
     app.router.add_get(r'/taxes/{year:\d{4}}', taxes)
+    app.router.add_get(r'/payment/{transaction_id:\d+}/view', view_payment)

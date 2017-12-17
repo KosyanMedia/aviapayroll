@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+{% block title %}Payroll magic{% endblock %}
+{% block content %}
+	<p class="lead">Here is an explaination of what was included in payment made on {{ payment['TransactionDate'][0:10] }}</p>
+	<table width="50%">
+		<thead>
+			<tr>
+				<th width="10">#</th>
+				<th>Invoice</th>
+				<th width="100">Amount</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for line in payment['PaymentItems'] %}
+				<tr class="{{ loop.cycle('odd', 'even') }}">
+					<td>{{ loop.index }}</td>
+					<td><a href="/invoice/{{line['InvoiceTransactionId']}}/view">{{ invoices[line['InvoiceTransactionId']]['Summary'] }}</a></td>
+					<td>{{ '%0.2f' % line['AmountPaid'] }}</td>
+				</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+{% endblock %}
