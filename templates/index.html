@@ -66,14 +66,14 @@
 			$.get('/invoice/' + tId + '/json', function(data) {
 				if (data.payments.length > 0) {
 					var payment = data.payments[0];
-					$tr.find('td.date').html(plink(payment.TransactionId, payment.CreatedDateUtc));
+					$tr.find('td.date').html(plink(payment.TransactionId, payment.TransactionDate));
 					$tr.find('td.amount').text(payment.TotalAmount.toFixed(2));
 					if (data.payments.length > 1) {
 						$tr.find('>td').not('td.date, td.amount').attr('rowspan', data.payments.length);
 						for (var pId in data.payments.slice(1)) {
 							payment = data.payments[pId];
 							var el = '<tr class="' + $tr.attr('class') + '" data-id="' + $tr.data('id') + '" id="' + hId + '-' + pId.toString() + '">';
-							el += '<td class="date">' + plink(payment.TransactionId, payment.CreatedDateUtc) + '</td>';
+							el += '<td class="date">' + plink(payment.TransactionId, payment.TransactionDate) + '</td>';
 							el += '<td class="amount">' + payment.TotalAmount.toFixed(2) + '</td>';
 							el += '</tr>';
 							$tr = $(el).insertAfter($tr);

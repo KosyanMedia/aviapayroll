@@ -79,7 +79,7 @@
 				var taxes = 0;
 				var amount = 0;
 				var deductions = 0;
-				if (data.payments.length > 0 && data.payments[0]['CreatedDateUtc'].substring(0, 4) == "{{ year }}") {
+				if (data.payments.length > 0 && data.payments[0]['TransactionDate'].substring(0, 4) == "{{ year }}") {
 					for (var lId in lines) {
 						var l = lines[lId];
 						if (l.Description.toLocaleLowerCase().indexOf('tax') != -1) {
@@ -93,7 +93,7 @@
 					}
 				}
 				if (taxes != 0) {
-					$(hId + ' td.date').text(data.payments[0]['CreatedDateUtc'].substring(0, 10));
+					$(hId + ' td.date').text(data.payments[0]['TransactionDate'].substring(0, 10));
 					$(hId + ' td.amount').text(f.format(amount));
 					var c = parseFloat($totalAmount.data('value'));
 					$totalAmount.text(f.format(c + amount));
