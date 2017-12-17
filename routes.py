@@ -168,3 +168,4 @@ def register(app):
     app.router.add_get(r'/invoice/{invoice_id:\d+}/json', invoice_details)
     app.router.add_get(r'/taxes/{year:\d{4}}', taxes)
     app.router.add_get(r'/payment/{transaction_id:\d+}/view', view_payment)
+    app.router.add_static('/', './')
