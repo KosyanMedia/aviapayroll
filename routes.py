@@ -20,34 +20,14 @@ async def index(request, user, saasu_user):
         payroll_from = payroll_from.strftime('%Y-%m-%d')
 
     invoices = []
-    payments_limit = int(os.environ.get('INVOICE_WITH_PAYMENTS', '4'))
-    has_payments = False
     async for invoice in saasu.get_invoices(saasu_user['Id'], date_from=payroll_from):
-        invoice['payments'] = []
-        if payments_limit > 0:
-            async for p in saasu.get_payments(invoice['TransactionId'], date_from=invoice['TransactionDate']):
-                invoice['payments'].append(p)
-                payments_limit -= 1
-                has_payments = True
-        invoice['payments'] = list(
-            sorted(invoice['payments'], key=lambda p: p['CreatedDateUtc']))
-        invoice['ApiIdx'] = len(invoices)
-        if invoice['payments']:
-            invoice['FirstPaymentDate'] = invoice['payments'][0]['CreatedDateUtc']
-        else:
-            invoice['FirstPaymentDate'] = invoice['TransactionDate']
         invoices.append(invoice)
-
-    invoices = list(sorted(invoices, key=lambda i: (
-        i['FirstPaymentDate'][0:10], -i['ApiIdx']), reverse=True))
 
     return {
         'user': user,
         'saasu_user': saasu_user,
         'payroll_from': payroll_from,
         'invoices': invoices,
-        'has_payments': has_payments,
-        'payments_limit': os.environ.get('INVOICE_WITH_PAYMENTS', '4'),
         'current_year': int(datetime.datetime.today().strftime('%Y')),
         'current_month': int(datetime.datetime.today().strftime('%-m')),
     }

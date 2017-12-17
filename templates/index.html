@@ -11,58 +11,81 @@
 				<th rowspan="2">Summary</th>
 				<th width="100" rowspan="2">Amount</th>
 				<th width="110" rowspan="2">Amount Paid</th>
-				{% if has_payments %}<th width="200" colspan="2">Payments</th>{% endif %}
+				<th width="200" colspan="2">Payments</th>
 				<th width="120" rowspan="2">Amount Owed</th>
 				<th width="25" rowspan="2">&nbsp;</th>
 			</tr>
-			{% if has_payments %}<tr>
+			<tr>
 				<th width="100">Date</th>
 				<th width="100">Amount</th>
-			</tr>{% endif %}
+			</tr>
 		</thead>
 		<tbody>
 			{% for invoice in invoices %}
-				{% set rowspan = '' %}
-				{% if has_payments and invoice['payments'] %}
-				{% set rowspan %} rowspan="{{ invoice['payments']|length }}"{% endset %}
-				{% endif %}
-				{% set itclass %}{{ loop.cycle('odd', 'even') }}{% endset %}
-				<tr class="{{ itclass }}">
-					<td{{ rowspan }}>{{ loop.index }}</td>
-					<td{{ rowspan }}><a href="/invoice/{{ invoice['TransactionId'] }}/view" title="Show details">{{ invoice['Summary'] }}</a></td>
-					<td{{ rowspan }}>{{ '%0.2f' % invoice['TotalAmount'] }}</td>
-					<td{{ rowspan }}>{{ '%0.2f' % invoice['AmountPaid'] }}</td>
-					{% if has_payments %}<td>
-						{% if invoice['payments'] %}
-							<a href="/payment/{{invoice['payments'][0]['TransactionId']}}/view">{{ invoice['payments'][0]['CreatedDateUtc'][0:10] }}</a>
-						{% else %}
-						&nbsp;
-						{% endif %}
+				<tr class="transaction {{ loop.cycle('odd', 'even') }}" data-id="{{invoice['TransactionId']}}" id="transaction-{{invoice['TransactionId']}}-0">
+					<td>{{ loop.index }}</td>
+					<td><a href="/invoice/{{ invoice['TransactionId'] }}/view" title="Show details">{{ invoice['Summary'] }}</a></td>
+					<td>{{ '%0.2f' % invoice['TotalAmount'] }}</td>
+					<td>{{ '%0.2f' % invoice['AmountPaid'] }}</td>
+					<td class="date">
+						<i class="fa fa-cog fa-spin fa-fw"></i>
 					</td>
-					<td>
-						{% if invoice['payments'] %}
-							{{ '%0.2f' % invoice['payments'][0]['TotalAmount'] }}
-						{% else %}
-						&nbsp;
-						{% endif %}
-					</td>{%endif %}
-					<td{{ rowspan }}>{% if invoice['AmountOwed'] > 0 %}<b>{% endif %}{{ '%0.2f' % invoice['AmountOwed'] }}{% if invoice['AmountOwed'] > 0 %}</b>{% endif %}</td>
-					<td{{ rowspan }}><a href="/invoice/{{ invoice['TransactionId'] }}/email" title="Email it to me"><i class="fa fa-mail-forward"></i></a></td>
+					<td class="amount">
+						<i class="fa fa-cog fa-spin fa-fw"></i>
+					</td>
+					<td>{% if invoice['AmountOwed'] > 0 %}<b>{% endif %}{{ '%0.2f' % invoice['AmountOwed'] }}{% if invoice['AmountOwed'] > 0 %}</b>{% endif %}</td>
+					<td><a href="/invoice/{{ invoice['TransactionId'] }}/email" title="Email it to me"><i class="fa fa-mail-forward"></i></a></td>
 				</tr>
-				{% if has_payments and invoice['payments']|length > 1 %}
-					{% for p in invoice['payments'][1:] %}
-						<tr class="{{ itclass }}">
-							<td><a href="/payment/{{p['TransactionId']}}/view">{{ p['CreatedDateUtc'][0:10] }}</a></a></td>
-							<td>{{ '%0.2f' % p['TotalAmount'] }}</td>
-						</tr>
-					{% endfor %}
-				{% endif %}
 			{% endfor %}
 		</tbody>
 	</table>
-	<p class="lead" style="padding-top: 25px"><b>NB!</b> Only payments for last {{ payments_limit }} invoices are displayed in this table, to view other payments — open details by clicking on invoice summary.</p>
 	<p class="lead" style="padding-top: 25px">Show taxes for {% if current_month < 5 %}<a href="/taxes/{{ current_year - 1}}">{{ current_year - 1 }}</a> / {% endif %}<a href="/taxes/{{ current_year }}">{{ current_year }}</a></p>
 	{% else %}
 	<p>Nothing to show for you, man, sorry :(</p>
 	{% endif %}
+{% endblock %}
+{% block footer %}
+{% if invoices|length > 0 %}
+	<script>
+		var transactions = [];
+		$('tr.transaction').each(function() {
+			transactions.push($(this).data('id'));
+		});
+		function plink(id, date) {
+			return '<a href="/payment/' + id.toString() + '/view">' + date.substring(0, 10) + '</a>';
+		}
+		function update() {
+			if (transactions.length == 0) {
+				return;
+			}
+			var tId = transactions[0];
+			var hId = '#transaction-' + tId;
+			var $tr = $(hId + '-0');
+			transactions = transactions.slice(1);
+			$tr.find('i.fa-cog').removeClass('fa-cog').addClass('fa-refresh');
+			$.get('/invoice/' + tId + '/json', function(data) {
+				if (data.payments.length > 0) {
+					var payment = data.payments[0];
+					$tr.find('td.date').html(plink(payment.TransactionId, payment.CreatedDateUtc));
+					$tr.find('td.amount').text(payment.TotalAmount.toFixed(2));
+					if (data.payments.length > 1) {
+						$tr.find('>td').not('td.date, td.amount').attr('rowspan', data.payments.length);
+						for (var pId in data.payments.slice(1)) {
+							payment = data.payments[pId];
+							var el = '<tr class="' + $tr.attr('class') + '" data-id="' + $tr.data('id') + '" id="' + hId + '-' + pId.toString() + '">';
+							el += '<td class="date">' + plink(payment.TransactionId, payment.CreatedDateUtc) + '</td>';
+							el += '<td class="amount">' + payment.TotalAmount.toFixed(2) + '</td>';
+							el += '</tr>';
+							$tr = $(el).insertAfter($tr);
+						}
+					}
+				} else {
+					$tr.find('i.fa-refresh').replaceWith('&nbsp;');
+				}
+				setTimeout(update, 100);
+			});
+		}
+		window.onload = update;
+	</script>
+{% endif %}
 {% endblock %}
