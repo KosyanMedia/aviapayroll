@@ -116,9 +116,13 @@ async def email_invoice(transaction_id):
     return r
 
 
-async def get_payments(transaction_id):
-    params = {'FileId': FILE_ID, 'ForInvoiceId': transaction_id}
-    params['PaymentFromDate'] = '2005-01-01'
-    params['PaymentToDate'] = datetime.datetime.today().strftime('%Y-%m-%d')
+async def get_payments(transaction_id=None, date_from='2005-01-01', date_to=datetime.datetime.today().strftime('%Y-%m-%d'), transaction_type=None):
+    params = {'FileId': FILE_ID}
+    if transaction_id:
+        params['ForInvoiceId'] = transaction_id
+    if transaction_type:
+        params['TransactionType'] = transaction_type
+    params['PaymentFromDate'] = date_from
+    params['PaymentToDate'] = date_to
     async for payments in get_paged('Payments', 'PaymentTransactions', params):
         yield payments

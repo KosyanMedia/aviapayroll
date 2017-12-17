@@ -25,7 +25,7 @@ async def index(request, user, saasu_user):
     async for invoice in saasu.get_invoices(saasu_user['Id'], date_from=payroll_from):
         invoice['payments'] = []
         if payments_limit > 0:
-            async for p in saasu.get_payments(invoice['TransactionId']):
+            async for p in saasu.get_payments(invoice['TransactionId'], date_from=invoice['TransactionDate']):
                 invoice['payments'].append(p)
                 payments_limit -= 1
                 has_payments = True
