@@ -126,7 +126,7 @@ async def view_payment(request, user, saasu_user):
     invoices = {}
     items = []
     if len(payment.get('PaymentItems', [])) > 10:
-        raise web.HTTPTooManyRequests('Too many invoices in this payment, sorry')
+        raise web.HTTPTooManyRequests(body='Too many invoices in this payment, sorry')
     for item in payment.get('PaymentItems', []):
         if item['InvoiceTransactionId'] not in invoice_ids:
             try:
