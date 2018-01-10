@@ -3,6 +3,7 @@
 {% block content %}
 	<p class="lead">Let's try to show you taxes details for year {{ year }}.</p>
 	{% if invoices|length > 0 %}
+	<div><label><input type="checkbox" id="format" checked="checked"/> Format numbers</label></div>
 	<table>
 		<thead>
 			<tr>
@@ -59,6 +60,7 @@
 		var $totalAmountCb = $('tfoot td.amount-cb');
 		var $totalTaxesCb = $('tfoot td.taxes-cb');
 		var $avgCurrencyRate = $('tfoot td.rate');
+		var $format = $('#format');
 		var f = Intl.NumberFormat(['ru-RU', 'en-US', 'en-AU', 'th-TH'], {
 			maximumFractionDigits: 2,
 			minimumFractionDigits: 2
@@ -66,6 +68,13 @@
 		$('tr.transaction').each(function() {
 			transactions.push($(this).data('id'));
 		});
+		function formatValue(val) {
+			if ($format.is(':checked')) {
+				return f.format(val)
+			} else {
+				return parseFloat(val).toFixed(2);
+			}
+		}
 		function update() {
 			if (transactions.length == 0) {
 				return;
@@ -94,33 +103,29 @@
 				}
 				if (taxes != 0) {
 					$(hId + ' td.date').text(data.payments[0]['TransactionDate'].substring(0, 10));
-					$(hId + ' td.amount').text(f.format(amount));
+					$(hId + ' td.amount').data('value', amount.toFixed(4)).text(formatValue(amount));
 					var c = parseFloat($totalAmount.data('value'));
-					$totalAmount.text(f.format(c + amount));
-					$totalAmount.data('value', taxes.toFixed(2));
-					$(hId + ' td.taxes').text(f.format(taxes));
+					$totalAmount.data('value', (c + amount).toFixed(4)).text(formatValue(c + amount));
+					$(hId + ' td.taxes').data('value', taxes.toFixed(4)).text(formatValue(taxes));
 					if (Math.round(amount * 0.13) != Math.round(taxes)) {
 						$(hId + ' td.taxes').addClass('suspicious').attr('title', 'Calculated taxes value differs from transferred, contact accounting team before filling TAX-form');
 					}
 					c = parseFloat($totalTaxes.data('value'));
 					var totalTaxes = c + taxes;
-					$totalTaxes.data('value', totalTaxes.toFixed(2));
-					$totalTaxes.text(f.format(totalTaxes));
+					$totalTaxes.data('value', totalTaxes.toFixed(4)).text(formatValue(totalTaxes));
 					if (data.payments[0]['cbRate']) {
 						rate = data.payments[0]['cbRate'];
 						$(hId + ' td.rate').text(rate.toFixed(4));
 
-						$(hId + ' td.amount-cb').text(f.format(amount * rate));
+						$(hId + ' td.amount-cb').data('value', (amount * rate).toFixed(4)).text(formatValue(amount * rate));
 						c = parseFloat($totalAmountCb.data('value'));
-						$totalAmountCb.data('value', (c + amount * rate).toFixed(2));
-						$totalAmountCb.text(f.format(c + amount * rate));
+						$totalAmountCb.data('value', (c + amount * rate).toFixed(4)).text(formatValue(c + amount * rate));
 
-						$(hId + ' td.taxes-cb').text(f.format(taxes * rate));
+						$(hId + ' td.taxes-cb').data('value', (taxes * rate).toFixed(4)).text(formatValue(taxes * rate));
 						c = parseFloat($totalTaxesCb.data('value'));
 						var totalTaxesCb = c + taxes * rate;
-						$totalTaxesCb.data('value', totalTaxesCb.toFixed(2));
-						$totalTaxesCb.text(f.format(totalTaxesCb));
-						$avgCurrencyRate.text(f.format(totalTaxesCb / totalTaxes));
+						$totalTaxesCb.data('value', totalTaxesCb.toFixed(4)).text(formatValue(totalTaxesCb));
+						$avgCurrencyRate.data('value', (totalTaxesCb / totalTaxes).toFixed(4)).text(formatValue(totalTaxesCb / totalTaxes));
 					} else {
 						$(hId + ' td.rate i.fa-refresh').removeClass('fa-spin').removeClass('fa-refresh').addClass('fa-close');
 						$(hId + ' td.amount-cb i.fa-refresh').removeClass('fa-spin').removeClass('fa-refresh').addClass('fa-close');
@@ -132,7 +137,17 @@
 				setTimeout(update, 100);
 			});
 		}
-		window.onload = update;
+		function loaded() {
+			update();
+			$('#format').change(function() {
+				$('tbody td, tfoot td').filter(function() {return $(this).data('value') != undefined})
+					.each(function() {
+						var $this = $(this);
+						$this.text(formatValue($this.data('value')));
+					});
+			});
+		}
+		window.onload = loaded;
 	</script>
 {% endif %}
 {% endblock %}
