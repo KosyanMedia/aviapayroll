@@ -28,10 +28,18 @@
 					<td>{{ '%0.2f' % invoice['TotalAmount'] }}</td>
 					<td>{{ '%0.2f' % invoice['AmountPaid'] }}</td>
 					<td class="date">
+						{% if invoice['AmountPaid'] != 0 %}
 						<i class="fa fa-cog fa-spin fa-fw"></i>
+						{% else %}
+						&nbsp;
+						{% endif %}
 					</td>
 					<td class="amount">
+						{% if invoice['AmountPaid'] != 0 %}
 						<i class="fa fa-cog fa-spin fa-fw"></i>
+						{% else %}
+						&nbsp;
+						{% endif %}
 					</td>
 					<td>{% if invoice['AmountOwed'] > 0 %}<b>{% endif %}{{ '%0.2f' % invoice['AmountOwed'] }}{% if invoice['AmountOwed'] > 0 %}</b>{% endif %}</td>
 					<td><a href="/invoice/{{ invoice['TransactionId'] }}/email" title="Email it to me"><i class="fa fa-mail-forward"></i></a></td>
@@ -62,7 +70,11 @@
 			var hId = '#transaction-' + tId;
 			var $tr = $(hId + '-0');
 			transactions = transactions.slice(1);
-			$tr.find('i.fa-cog').removeClass('fa-cog').addClass('fa-refresh');
+			var $refresh = $tr.find('i.fa-cog').removeClass('fa-cog').addClass('fa-refresh');
+			if ($refresh.length == 0) {
+				setTimeout(update, 25);
+				return;
+			}
 			$.get('/invoice/' + tId + '/json', function(data) {
 				if (data.payments.length > 0) {
 					var payment = data.payments[0];
@@ -80,7 +92,7 @@
 						}
 					}
 				} else {
-					$tr.find('i.fa-refresh').replaceWith('&nbsp;');
+					$refresh.replaceWith('&nbsp;');
 				}
 				setTimeout(update, 100);
 			});
