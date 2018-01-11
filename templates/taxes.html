@@ -34,8 +34,8 @@
 		</tfoot>
 		<tbody>
 			{% for invoice in invoices %}
-				<tr data-id="{{ invoice['TransactionId'] }}" class="transaction" id="transaction-{{ invoice['TransactionId'] }}">
-					<td>{{ loop.index }}</td>
+				<tr data-id="{{ invoice['TransactionId'] }}" class="transaction {{ loop.cycle('odd', 'even') }}" id="transaction-{{ invoice['TransactionId'] }}">
+					<td class="rownum">{{ loop.index }}</td>
 					<td><a href="/invoice/{{ invoice['TransactionId'] }}/view" title="Show details">{{ invoice['Summary'] }}</a></td>
 					<td class="amount"><i class="fa fa-cog fa-spin fa-fw"></i></td>
 					<td class="taxes"><i class="fa fa-cog fa-spin fa-fw"></i></td>
@@ -132,7 +132,13 @@
 						$(hId + ' td.taxes-cb i.fa-refresh').removeClass('fa-spin').removeClass('fa-refresh').addClass('fa-close');
 					}
 				} else {
-					$(hId + ' i.fa-refresh').removeClass('fa-spin').removeClass('fa-refresh').addClass('fa-close');
+					$(hId).remove();
+					var rownum = 0;
+					$('td.rownum').each(function() {
+						var c = ++rownum % 2 == 0 ? 'even' : 'odd';
+						var wclass = c == 'odd' ? 'even' : 'odd';
+						$(this).text(rownum).parent('tr.transaction').removeClass(wclass).addClass(c);
+					});
 				}
 				setTimeout(update, 100);
 			});
