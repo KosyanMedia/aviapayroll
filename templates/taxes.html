@@ -20,18 +20,6 @@
 				<th width="100">Taxes</th>
 			</tr>
 		</thead>
-		<tfoot>
-			<tr>
-				<td>&nbsp;</td>
-				<td>Total</td>
-				<td class="amount" data-value="0"><i class="fa fa-cog fa-spin fa-fw"></i></td>
-				<td class="taxes" data-value="0"><i class="fa fa-cog fa-spin fa-fw"></i></td>
-				<td class="date">&nbsp;</td>
-				<td class="rate" data-value="0"><i class="fa fa-cog fa-spin fa-fw"></i></td>
-				<td class="amount-cb" data-value="0"><i class="fa fa-cog fa-spin fa-fw"></i></td>
-				<td class="taxes-cb" data-value="0"><i class="fa fa-cog fa-spin fa-fw"></i></td>
-			</tr>
-		</tfoot>
 		<tbody>
 			{% for invoice in invoices %}
 				<tr data-id="{{ invoice['TransactionId'] }}" class="transaction {{ loop.cycle('odd', 'even') }}" id="transaction-{{ invoice['TransactionId'] }}">
@@ -46,6 +34,18 @@
 				</tr>
 			{% endfor %}
 		</tbody>
+		<tfoot>
+			<tr>
+				<td>&nbsp;</td>
+				<td>Total</td>
+				<td class="amount" data-value="0"><i class="fa fa-cog fa-spin fa-fw"></i></td>
+				<td class="taxes" data-value="0"><i class="fa fa-cog fa-spin fa-fw"></i></td>
+				<td class="date">&nbsp;</td>
+				<td class="rate" data-value="0"><i class="fa fa-cog fa-spin fa-fw"></i></td>
+				<td class="amount-cb" data-value="0"><i class="fa fa-cog fa-spin fa-fw"></i></td>
+				<td class="taxes-cb" data-value="0"><i class="fa fa-cog fa-spin fa-fw"></i></td>
+			</tr>
+		</tfoot>
 	</table>
 	{% else %}
 		<p class="lead">No invoices found :(</p>
