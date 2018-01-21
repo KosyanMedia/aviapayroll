@@ -24,7 +24,7 @@
 			{% for invoice in invoices %}
 				<tr data-id="{{ invoice['TransactionId'] }}" class="transaction {{ loop.cycle('odd', 'even') }}" id="transaction-{{ invoice['TransactionId'] }}">
 					<td class="rownum">{{ loop.index }}</td>
-					<td><a href="/invoice/{{ invoice['TransactionId'] }}/view" title="Show details">{{ invoice['Summary'] }}</a></td>
+					<td class="summary"><a href="/invoice/{{ invoice['TransactionId'] }}/view" title="Show details">{{ invoice['Summary'] }}</a></td>
 					<td class="amount"><i class="fa fa-cog fa-spin fa-fw"></i></td>
 					<td class="taxes"><i class="fa fa-cog fa-spin fa-fw"></i></td>
 					<td class="date"><i class="fa fa-cog fa-spin fa-fw"></i></td>
@@ -47,6 +47,9 @@
 			</tr>
 		</tfoot>
 	</table>
+	<form action="/taxes/{{year}}/export" method="post" id="export-form">
+	<p class="lead">Export as <input type="submit" name="format" value="CSV" class="btn btn-primary btn-sm export-btn" disabled="disabled" />, <input type="submit" name="format" value="DC7" class="btn btn-primary btn-sm export-btn" disabled="disabled"/></p>
+	</form>
 	{% else %}
 		<p class="lead">No invoices found :(</p>
 	{% endif %}
@@ -61,6 +64,7 @@
 		var $totalTaxesCb = $('tfoot td.taxes-cb');
 		var $avgCurrencyRate = $('tfoot td.rate');
 		var $format = $('#format');
+		var $exportForm = $('#export-form');
 		var f = Intl.NumberFormat(['ru-RU', 'en-US', 'en-AU', 'th-TH'], {
 			maximumFractionDigits: 2,
 			minimumFractionDigits: 2
@@ -75,8 +79,14 @@
 				return parseFloat(val).toFixed(2);
 			}
 		}
+		function updateFinished() {
+			if ($('tr.transaction').length > 0) {
+				$('input.export-btn').removeAttr('disabled');
+			}
+		}
 		function update() {
 			if (transactions.length == 0) {
+				updateFinished();
 				return;
 			}
 			var tId = transactions[0];
@@ -102,11 +112,16 @@
 					}
 				}
 				if (taxes != 0) {
+					$exportForm.append('<input type="hidden" name="transaction_id" value="' + tId.toString() + '"/>');
+					$exportForm.append('<input type="hidden" name="transaction_summary" value="' + $(hId + ' td.summary').text() + '"/>');
 					$(hId + ' td.date').text(data.payments[0]['TransactionDate'].substring(0, 10));
+					$exportForm.append('<input type="hidden" name="transaction_date" value="' + data.payments[0]['TransactionDate'].substring(0, 10) + '"/>');
 					$(hId + ' td.amount').data('value', amount.toFixed(4)).text(formatValue(amount));
+					$exportForm.append('<input type="hidden" name="transaction_amount" value="' + amount.toFixed(4).toString() + '"/>');
 					var c = parseFloat($totalAmount.data('value'));
 					$totalAmount.data('value', (c + amount).toFixed(4)).text(formatValue(c + amount));
 					$(hId + ' td.taxes').data('value', taxes.toFixed(4)).text(formatValue(taxes));
+					$exportForm.append('<input type="hidden" name="transaction_taxes" value="' + taxes.toFixed(4).toString() + '"/>');
 					if (Math.round(amount * 0.13) != Math.round(taxes)) {
 						$(hId + ' td.taxes').addClass('suspicious').attr('title', 'Calculated taxes value differs from transferred, contact accounting team before filling TAX-form');
 					}
@@ -116,12 +131,15 @@
 					if (data.payments[0]['cbRate']) {
 						rate = data.payments[0]['cbRate'];
 						$(hId + ' td.rate').text(rate.toFixed(4));
+						$exportForm.append('<input type="hidden" name="transaction_cb_rate" value="' + rate.toFixed(4).toString() + '"/>');
 
 						$(hId + ' td.amount-cb').data('value', (amount * rate).toFixed(4)).text(formatValue(amount * rate));
+						$exportForm.append('<input type="hidden" name="transaction_cb_amount" value="' + (amount * rate).toFixed(4).toString() + '"/>');
 						c = parseFloat($totalAmountCb.data('value'));
 						$totalAmountCb.data('value', (c + amount * rate).toFixed(4)).text(formatValue(c + amount * rate));
 
 						$(hId + ' td.taxes-cb').data('value', (taxes * rate).toFixed(4)).text(formatValue(taxes * rate));
+						$exportForm.append('<input type="hidden" name="transaction_cb_taxes" value="' + (taxes * rate).toFixed(4).toString() + '"/>');
 						c = parseFloat($totalTaxesCb.data('value'));
 						var totalTaxesCb = c + taxes * rate;
 						$totalTaxesCb.data('value', totalTaxesCb.toFixed(4)).text(formatValue(totalTaxesCb));

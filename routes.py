@@ -7,6 +7,7 @@ import saasu
 from aiohttp import web
 import ujson
 import cbr
+import taxes as t
 
 
 @aiohttp_jinja2.template('index.html')
@@ -147,6 +148,20 @@ async def view_payment(request, user, saasu_user):
         'payment': payment,
     }
 
+@auth_helpers.login_required
+async def taxes_export(request, user, saasu_user):
+    year = int(request.match_info['year'])
+    body = await request.post()
+    fmt = body.get('format')
+    if fmt == 'DC7':
+        ret = t.to_dc7(year, body)
+        return web.Response(body=ret[0], headers=ret[1])
+    elif fmt == 'CSV':
+        ret = t.to_csv(year, body)
+        return web.Response(body=ret[0], headers=ret[1])
+    else:
+        raise web.HTTPBadRequest(body='Unknown export format')
+
 
 def register(app):
     app.router.add_get('/', index)
@@ -154,5 +169,6 @@ def register(app):
     app.router.add_get(r'/invoice/{invoice_id:\d+}/view', view_invoice)
     app.router.add_get(r'/invoice/{invoice_id:\d+}/json', invoice_details)
     app.router.add_get(r'/taxes/{year:\d{4}}', taxes)
+    app.router.add_post(r'/taxes/{year:\d{4}}/export', taxes_export)
     app.router.add_get(r'/payment/{transaction_id:\d+}/view', view_payment)
     app.router.add_static('/', './')
