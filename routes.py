@@ -93,6 +93,11 @@ async def taxes(request, user, saasu_user):
 
 @auth_helpers.login_required
 async def invoice_details(request, user, saasu_user):
+    def last_day_of_month(date):
+        if date.month == 12:
+            return date.replace(day=31)
+        return date.replace(month=date.month+1, day=1) - datetime.timedelta(days=1)
+
     try:
         invoice = await saasu.get_invoice(request.match_info['invoice_id'])
     except:
@@ -101,8 +106,13 @@ async def invoice_details(request, user, saasu_user):
     if invoice['BillingContactId'] != saasu_user['Id']:
         raise web.HTTPNotFound(body='Requested invoice not found')
 
+    transaction_date = datetime.datetime.strptime(invoice['CreatedDateUtc'][0:10], '%Y-%m-%d')
+    transaction_date = last_day_of_month(transaction_date)
+
     payments = []
     async for payment in saasu.get_payments(invoice['TransactionId']):
+        if transaction_date.date() < datetime.date.today():
+            payment['TransactionDate'] = transaction_date.strftime('%Y-%m-%d')
         date = datetime.datetime.strptime(payment['TransactionDate'][0:10], '%Y-%m-%d')
         try:
             payment['cbRate'] = await cbr.get_currency_rate(date, 'USD')
