@@ -93,7 +93,7 @@
 			var hId = '#transaction-' + tId;
 			transactions = transactions.slice(1);
 			$(hId + ' i.fa-cog').removeClass('fa-cog').addClass('fa-refresh');
-			$.get('/invoice/' + tId + '/json', function(data) {
+			$.get('/invoice/' + tId + '/json?target=taxes', function(data) {
 				var lines = data.LineItems;
 				var taxes = 0;
 				var amount = 0;

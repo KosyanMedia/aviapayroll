@@ -111,7 +111,7 @@ async def invoice_details(request, user, saasu_user):
 
     payments = []
     async for payment in saasu.get_payments(invoice['TransactionId']):
-        if transaction_date.date() < datetime.date.today():
+        if request.query.get('target') == 'taxes' and transaction_date.date() < datetime.date.today():
             payment['TransactionDate'] = transaction_date.strftime('%Y-%m-%d')
         date = datetime.datetime.strptime(payment['TransactionDate'][0:10], '%Y-%m-%d')
         try:
