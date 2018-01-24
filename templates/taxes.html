@@ -98,7 +98,10 @@
 				var taxes = 0;
 				var amount = 0;
 				var deductions = 0;
-				if (data.payments.length > 0 && data.payments[0]['TransactionDate'].substring(0, 4) == "{{ year }}") {
+				var summary = $(hId + ' td.summary').text();
+				if (!/\d{4}-\d{2} ECR/.test(summary) && lines.length > 1 && data.payments.length > 0
+					&& data.payments[0]['TransactionDate'].substring(0, 4) == "{{ year }}"
+				) {
 					for (var lId in lines) {
 						var l = lines[lId];
 						if (l.Description.toLocaleLowerCase().indexOf('tax') != -1) {
