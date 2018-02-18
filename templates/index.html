@@ -13,7 +13,7 @@
 				<th width="110" rowspan="2">Amount Paid</th>
 				<th width="200" colspan="2">Payments</th>
 				<th width="120" rowspan="2">Amount Owed</th>
-				<th width="25" rowspan="2">&nbsp;</th>
+				<th width="50" rowspan="2">&nbsp;</th>
 			</tr>
 			<tr>
 				<th width="100">Date</th>
@@ -42,7 +42,10 @@
 						{% endif %}
 					</td>
 					<td>{% if invoice['AmountOwed'] > 0 %}<b>{% endif %}{{ '%0.2f' % invoice['AmountOwed'] }}{% if invoice['AmountOwed'] > 0 %}</b>{% endif %}</td>
-					<td><a href="/invoice/{{ invoice['TransactionId'] }}/email" title="Email it to me"><i class="fa fa-mail-forward"></i></a></td>
+					<td>
+						<a href="/invoice/{{ invoice['TransactionId'] }}/email" title="Email it to me" target="blank"><i class="fa fa-mail-forward"></i></a>
+						<a href="/invoice/{{ invoice['TransactionId'] }}/pdf" title="Download as PDF" target="blank"><i class="fa fa-download"></i></a>
+                    </td>
 				</tr>
 			{% endfor %}
 		</tbody>

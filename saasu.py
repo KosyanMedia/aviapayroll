@@ -50,6 +50,21 @@ async def post(uri, data=None, params=None):
             return ujson.loads(await resp.text())
 
 
+async def get_stream(uri, params=None):
+    headers = {
+        'X-Api-Version': '1.0',
+    }
+    if ACCESS_TOKEN:
+        headers['Authorization'] = 'Bearer %s' % ACCESS_TOKEN
+    async with aiohttp.ClientSession() as session:
+        async with session.get('https://api.saasu.com/%s' % uri, headers=headers, params=params) as resp:
+            while True:
+                chunk = await resp.content.read(1024)
+                if not chunk:
+                    break
+                yield chunk
+
+
 async def get(uri, params=None):
     headers = {
         'X-Api-Version': '1.0',
@@ -114,6 +129,11 @@ async def email_invoice(transaction_id):
     if r.get('InvoiceId') != transaction_id:
         raise Exception('Something wrong', r)
     return r
+
+
+async def pdf_invoice(transaction_id):
+    async for data in get_stream('Invoice/%s/generate-pdf' % transaction_id, params={'FileId': FILE_ID}):
+        yield data
 
 
 async def get_payments(transaction_id=None, date_from='2005-01-01', date_to=datetime.datetime.today().strftime('%Y-%m-%d'), transaction_type=None):

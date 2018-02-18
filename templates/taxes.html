@@ -8,7 +8,7 @@
 		<thead>
 			<tr>
 				<th rowspan="2" width="10">#</th>
-				<th rowspan="2">Summary</th>
+				<th rowspan="2" colspan="2">Summary</th>
 				<th rowspan="2" width="170">Amount to declare</th>
 				<th rowspan="2" width="80">Taxes</th>
 				<th rowspan="2" width="100">Date</th>
@@ -25,6 +25,9 @@
 				<tr data-id="{{ invoice['TransactionId'] }}" class="transaction {{ loop.cycle('odd', 'even') }}" id="transaction-{{ invoice['TransactionId'] }}">
 					<td class="rownum">{{ loop.index }}</td>
 					<td class="summary"><a href="/invoice/{{ invoice['TransactionId'] }}/view" title="Show details">{{ invoice['Summary'] }}</a></td>
+					<td class="icons" width="25">
+						<a href="/invoice/{{ invoice['TransactionId'] }}/pdf" title="Download as PDF" target="blank"><i class="fa fa-download"></i></a>
+					</td>
 					<td class="amount"><i class="fa fa-cog fa-spin fa-fw"></i></td>
 					<td class="taxes"><i class="fa fa-cog fa-spin fa-fw"></i></td>
 					<td class="date"><i class="fa fa-cog fa-spin fa-fw"></i></td>
@@ -167,7 +170,7 @@
 		function loaded() {
 			update();
 			$('#format').change(function() {
-				$('tbody td, tfoot td').filter(function() {return $(this).data('value') != undefined})
+				$('tbody td, tfoot td').filter(function() {return $(this).data('value') !== undefined})
 					.each(function() {
 						var $this = $(this);
 						$this.text(formatValue($this.data('value')));

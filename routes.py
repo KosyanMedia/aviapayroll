@@ -172,10 +172,28 @@ async def taxes_export(request, user, saasu_user):
     else:
         raise web.HTTPBadRequest(body='Unknown export format')
 
+@auth_helpers.login_required
+async def pdf_invoice(request, user, saasu_user):
+    try:
+        invoice = await saasu.get_invoice(request.match_info['invoice_id'])
+    except:
+        raise web.HTTPNotFound(body='Requested invoice not found')
+
+    if invoice['BillingContactId'] != saasu_user['Id']:
+        raise web.HTTPNotFound(body='Requested invoice not found')
+
+    resp = web.StreamResponse(headers={'Content-type': 'application/pdf', 'Content-disposition': 'attachment; filename="%s.pdf"' % invoice['Summary']})
+    await resp.prepare(request)
+    async for data in saasu.pdf_invoice(invoice['TransactionId']):
+        resp.write(data)
+        await resp.drain()
+    resp.write_eof()
+    return resp
 
 def register(app):
     app.router.add_get('/', index)
     app.router.add_get(r'/invoice/{invoice_id:\d+}/email', email_invoice)
+    app.router.add_get(r'/invoice/{invoice_id:\d+}/pdf', pdf_invoice)
     app.router.add_get(r'/invoice/{invoice_id:\d+}/view', view_invoice)
     app.router.add_get(r'/invoice/{invoice_id:\d+}/json', invoice_details)
     app.router.add_get(r'/taxes/{year:\d{4}}', taxes)
